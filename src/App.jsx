@@ -14,7 +14,7 @@ export default function App() {
 
   const [remindersEnabled, setRemindersEnabled] = useState(true);
   const [darkMode, setDarkMode] = useState(true);
-  const [sidebarShrunk, setSidebarShrunk] = useState(false);
+  const [sidebarShrunk, setSidebarShrunk] = useState(window.innerWidth < 768);
   const [isDimmed, setIsDimmed] = useState(false);
 
   useEffect(() => {

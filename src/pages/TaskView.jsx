@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { format, parseISO } from 'date-fns';
+import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import { BsArrowLeft, BsPencilFill, BsEyeFill, BsTrashFill, BsPlusCircleFill, BsFileText, BsSaveFill } from 'react-icons/bs'; // Import Bootstrap Icons
 import SubtaskItem from '../components/SubtaskItem';
 import ConfirmationModal from '../components/ConfirmationModal';
@@ -179,6 +180,101 @@ export default function TaskView() {
     setModalOpen(false);
   };
 
+  const onDragEnd = (result) => {
+    const { source, destination, draggableId } = result;
+    if (!destination) return;
+
+    const reorder = (list, startIndex, endIndex) => {
+      const result = Array.from(list);
+      const [removed] = result.splice(startIndex, 1);
+      result.splice(endIndex, 0, removed);
+      return result;
+    };
+
+    const findAndReorder = (subtasks, source, destination, draggableId) => {
+      if (source.droppableId === destination.droppableId) {
+        if (source.droppableId === 'root') {
+          return reorder(subtasks, source.index, destination.index);
+        }
+        return subtasks.map(sub => {
+          if (sub.id === source.droppableId) {
+            const reorderedSubtasks = reorder(sub.subtasks, source.index, destination.index);
+            return { ...sub, subtasks: reorderedSubtasks };
+          }
+          if (sub.subtasks) {
+            return { ...sub, subtasks: findAndReorder(sub.subtasks, source, destination, draggableId) };
+          }
+          return sub;
+        });
+      } else {
+        let sourceList;
+        let destinationList;
+        let draggedItem;
+
+        const findLists = (subtasks, droppableId) => {
+          if (droppableId === 'root') return subtasks;
+          for (let sub of subtasks) {
+            if (sub.id === droppableId) return sub.subtasks;
+            if (sub.subtasks) {
+              const found = findLists(sub.subtasks, droppableId);
+              if (found) return found;
+            }
+          }
+        };
+        
+        const removeFromSource = (subtasks) => {
+          const newSubtasks = [];
+          for (const sub of subtasks) {
+            if (sub.id === draggableId) {
+              draggedItem = sub;
+              continue;
+            }
+            if (sub.subtasks) {
+              const result = removeFromSource(sub.subtasks);
+              if (result.item) {
+                draggedItem = result.item;
+                sub.subtasks = result.list;
+              }
+            }
+            newSubtasks.push(sub);
+          }
+          if(draggedItem) return {list: newSubtasks, item: draggedItem};
+          return newSubtasks;
+        };
+
+        const addToDestination = (subtasks) => {
+          return subtasks.map(sub => {
+            if (sub.id === destination.droppableId) {
+              const newSubtasks = Array.from(sub.subtasks || []);
+              newSubtasks.splice(destination.index, 0, draggedItem);
+              return { ...sub, subtasks: newSubtasks };
+            }
+            if (sub.subtasks) {
+              return { ...sub, subtasks: addToDestination(sub.subtasks) };
+            }
+            return sub;
+          });
+        }
+        
+        let newSubtasks = subtasks;
+        const result = removeFromSource(newSubtasks);
+        newSubtasks = result.list;
+        draggedItem = result.item;
+        
+        if (destination.droppableId === 'root') {
+          newSubtasks.splice(destination.index, 0, draggedItem);
+        } else {
+          newSubtasks = addToDestination(newSubtasks);
+        }
+
+        return newSubtasks;
+      }
+    };
+
+    const newSubtasks = findAndReorder(subtasks, source, destination, draggableId);
+    setSubtasks(newSubtasks);
+  };
+
   const renderTextWithLinks = (text) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     const parts = text.split(urlRegex);
@@ -281,18 +377,29 @@ export default function TaskView() {
                 </button>
               </div>
             )}
-            <div className="mt-4">
-              {subtasks.map(sub => (
-                <SubtaskItem
-                  key={sub.id}
-                  subtask={sub}
-                  onUpdate={handleSubtaskUpdate}
-                  onDelete={handleSubtaskDelete}
-                  onAdd={handleSubtaskAdd}
-                  isEditing={isEditing}
-                />
-              ))}
-            </div>
+            <DragDropContext onDragEnd={onDragEnd}>
+              <div className="mt-4">
+                <Droppable droppableId="root">
+                  {(provided) => (
+                    <div {...provided.droppableProps} ref={provided.innerRef}>
+                      {subtasks.map((sub, index) => (
+                        <SubtaskItem
+                          key={sub.id}
+                          subtask={sub}
+                          index={index}
+                          onUpdate={handleSubtaskUpdate}
+                          onDelete={handleSubtaskDelete}
+                          onAdd={handleSubtaskAdd}
+                          isEditing={isEditing}
+                          parentId={null}
+                        />
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </div>
+            </DragDropContext>
           </div>
 
           {isEditing && (

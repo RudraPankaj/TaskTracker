@@ -59,41 +59,56 @@ export default function Sidebar({
 
           <div className="border-b dark:border-slate-700 my-4"></div>
 
-          <div className={`py-2 px-3 flex items-center ${isShrunk ? 'justify-center' : 'justify-start'} gap-2 text-slate-600 dark:text-slate-300`}>
+          <div 
+            className={`py-2 px-3 flex items-center ${isShrunk ? 'justify-center' : 'justify-start'} gap-2 text-slate-600 dark:text-slate-300 ${isShrunk && 'hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer rounded'}`}
+            onClick={isShrunk ? toggleReminders : undefined}
+          >
             {remindersEnabled ? <BsBell /> : <BsBellSlash />}
             <span className={`${isShrunk ? 'hidden' : 'inline'}`}>Reminders</span>
-            <button
-              onClick={toggleReminders}
-              className={`ml-auto w-10 h-5 rounded-full flex items-center transition-colors duration-300 ${remindersEnabled ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}`}
-            >
-              <span
-                className={`inline-block w-4 h-4 bg-white rounded-full transform transition-transform duration-300 ${remindersEnabled ? 'translate-x-5' : 'translate-x-1'}`}
-              ></span>
-            </button>
+            {!isShrunk && (
+              <button
+                onClick={toggleReminders}
+                className={`ml-auto w-10 h-5 rounded-full flex items-center transition-colors duration-300 ${remindersEnabled ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}`}
+              >
+                <span
+                  className={`inline-block w-4 h-4 bg-white rounded-full transform transition-transform duration-300 ${remindersEnabled ? 'translate-x-5' : 'translate-x-1'}`}
+                ></span>
+              </button>
+            )}
           </div>
-          <div className={`py-2 px-3 flex items-center ${isShrunk ? 'justify-center' : 'justify-start'} gap-2 text-slate-600 dark:text-slate-300`}>
+          <div 
+            className={`py-2 px-3 flex items-center ${isShrunk ? 'justify-center' : 'justify-start'} gap-2 text-slate-600 dark:text-slate-300 ${isShrunk && 'hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer rounded'}`}
+            onClick={isShrunk ? toggleDarkMode : undefined}
+          >
             {darkMode ? <BsMoon /> : <BsSun />}
             <span className={`${isShrunk ? 'hidden' : 'inline'}`}>Theme</span>
-            <button
-              onClick={toggleDarkMode}
-              className={`ml-auto w-10 h-5 rounded-full flex items-center transition-colors duration-300 ${darkMode ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}`}
-            >
-              <span
-                className={`inline-block w-4 h-4 bg-white rounded-full transform transition-transform duration-300 ${darkMode ? 'translate-x-5' : 'translate-x-1'}`}
-              ></span>
-            </button>
+            {!isShrunk && (
+              <button
+                onClick={toggleDarkMode}
+                className={`ml-auto w-10 h-5 rounded-full flex items-center transition-colors duration-300 ${darkMode ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}`}
+              >
+                <span
+                  className={`inline-block w-4 h-4 bg-white rounded-full transform transition-transform duration-300 ${darkMode ? 'translate-x-5' : 'translate-x-1'}`}
+                ></span>
+              </button>
+            )}
           </div>
-          <div className={`py-2 px-3 flex items-center ${isShrunk ? 'justify-center' : 'justify-start'} gap-2 text-slate-600 dark:text-slate-300`}>
+          <div 
+            className={`py-2 px-3 flex items-center ${isShrunk ? 'justify-center' : 'justify-start'} gap-2 text-slate-600 dark:text-slate-300 ${isShrunk && 'hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer rounded'}`}
+            onClick={isShrunk ? toggleDimming : undefined}
+          >
             <BsEye />
             <span className={`${isShrunk ? 'hidden' : 'inline'}`}>Eye Care</span>
-            <button
-              onClick={toggleDimming}
-              className={`ml-auto w-10 h-5 rounded-full flex items-center transition-colors duration-300 ${isDimmed ? 'bg-yellow-500' : 'bg-slate-300 dark:bg-slate-600'}`}
-            >
-              <span
-                className={`inline-block w-4 h-4 bg-white rounded-full transform transition-transform duration-300 ${isDimmed ? 'translate-x-5' : 'translate-x-1'}`}
-              ></span>
-            </button>
+            {!isShrunk && (
+              <button
+                onClick={toggleDimming}
+                className={`ml-auto w-10 h-5 rounded-full flex items-center transition-colors duration-300 ${isDimmed ? 'bg-yellow-500' : 'bg-slate-300 dark:bg-slate-600'}`}
+              >
+                <span
+                  className={`inline-block w-4 h-4 bg-white rounded-full transform transition-transform duration-300 ${isDimmed ? 'translate-x-5' : 'translate-x-1'}`}
+                ></span>
+              </button>
+            )}
           </div>
         </nav>
       </div>
