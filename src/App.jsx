@@ -1,38 +1,74 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
-import { loadTasks, saveTasks } from './utils/storage';
-import { sampleTasks } from './utils/sampleData';
+import SettingsModal from './components/SettingsModal';
+import { TasksContext } from './context/TasksContext';
+import { taskActionTypes } from './reducers/tasksReducer';
 
 export default function App() {
-  const [tasks, setTasks] = useState(() => loadTasks() || sampleTasks);
+  const { tasks, dispatch } = useContext(TasksContext);
   const [inputValue, setInputValue] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [remindersEnabled, setRemindersEnabled] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
-  const [sidebarShrunk, setSidebarShrunk] = useState(window.innerWidth < 768);
-  const [isDimmed, setIsDimmed] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+
+  const [remindersEnabled, setRemindersEnabled] = useState(() => {
+    const saved = localStorage.getItem('remindersEnabled');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  const [sidebarShrunk, setSidebarShrunk] = useState(() => {
+    if (window.innerWidth < 768) return true;
+    const saved = localStorage.getItem('sidebarShrunk');
+    return saved !== null ? JSON.parse(saved) : false;
+  });
+
+  const [isDimmed, setIsDimmed] = useState(() => {
+    const saved = localStorage.getItem('isDimmed');
+    return saved !== null ? JSON.parse(saved) : false;
+  });
 
   useEffect(() => {
+    localStorage.setItem('remindersEnabled', JSON.stringify(remindersEnabled));
+  }, [remindersEnabled]);
+
+  useEffect(() => {
+    if (window.innerWidth >= 768) {
+      localStorage.setItem('sidebarShrunk', JSON.stringify(sidebarShrunk));
+    }
+  }, [sidebarShrunk]);
+
+  useEffect(() => {
+    localStorage.setItem('isDimmed', JSON.stringify(isDimmed));
+  }, [isDimmed]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setSidebarShrunk(true);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
     if (darkMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
   }, [darkMode]);
-
-  useEffect(() => {
-    saveTasks(tasks);
-  }, [tasks]);
-
-  useEffect(() => {
-    const t = setInterval(() => setTasks((ts) => [...ts]), 60000); // trigger re-render every minute
-    return () => clearInterval(t);
-  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -66,28 +102,26 @@ export default function App() {
     setIsDimmed(prev => !prev);
   }
 
-  function addTask(newTask) {
-    setTasks((prev) => [...prev, newTask]);
+  function openSettingsModal() {
+    setIsSettingsModalOpen(true);
   }
 
-  function deleteTask(id) {
-    setTasks((prev) => prev.filter((t) => t.id !== id));
+  function closeSettingsModal() {
+    setIsSettingsModalOpen(false);
   }
 
-  function updateTask(updatedTask) {
-    setTasks((prev) => prev.map((t) => (t.id === updatedTask.id ? updatedTask : t)));
+  function handleClearAllData() {
+    localStorage.clear();
+    dispatch({ type: taskActionTypes.SET_TASKS, payload: [] });
+    // Reset settings to default
+    setRemindersEnabled(true);
+    setDarkMode(true);
+    setSidebarShrunk(false);
+    setIsDimmed(false);
+    closeSettingsModal();
+    // We could force a reload to make sure everything is reset
+    // window.location.reload();
   }
-
-  function toggleComplete(id) {
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
-  }
-
-  const filteredTasks = useMemo(() => {
-    if (!searchQuery) return tasks;
-    return tasks.filter(task =>
-      task.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [tasks, searchQuery]);
 
   return (
     <div className={`h-screen flex text-slate-800 dark:text-slate-100 bg-slate-100 dark:bg-slate-900 overflow-hidden transition-all duration-300 ${isDimmed ? 'filter brightness-75' : ''}`}>
@@ -101,13 +135,25 @@ export default function App() {
         toggleShrink={toggleSidebar}
         isDimmed={isDimmed}
         toggleDimming={toggleDimming}
+        openSettingsModal={openSettingsModal}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar searchQuery={inputValue} setSearchQuery={setInputValue} />
-        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
-          <Outlet context={{ allTasks: tasks, tasks: filteredTasks, setTasks, addTask, deleteTask, updateTask, toggleComplete, searchQuery, remindersEnabled, toggleReminders, darkMode, toggleDarkMode }} />
+        <main className="flex-1 pt-2 px-1 pb-1 md:p-6 overflow-y-auto">
+          <Outlet context={{ allTasks: tasks, dispatch, searchQuery, remindersEnabled, darkMode }} />
         </main>
       </div>
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={closeSettingsModal}
+        remindersEnabled={remindersEnabled}
+        toggleReminders={toggleReminders}
+        darkMode={darkMode}
+        toggleDarkMode={toggleDarkMode}
+        isDimmed={isDimmed}
+        toggleDimming={toggleDimming}
+        onClearAllData={handleClearAllData}
+      />
     </div>
   );
 }

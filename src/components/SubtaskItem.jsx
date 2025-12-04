@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { BsCircle, BsCheckCircleFill, BsPlusCircleFill, BsTrashFill } from 'react-icons/bs';
 import { Draggable, Droppable } from '@hello-pangea/dnd';
@@ -13,16 +13,17 @@ export default function SubtaskItem({
   isEditing: parentIsEditing,
   parentId,
 }) {
-  const [isEditing, setIsEditing] = useState(parentIsEditing || subtask.isNew);
   const [title, setTitle] = useState(subtask.title);
   const [modalOpen, setModalOpen] = useState(false);
   const [targetUrl, setTargetUrl] = useState('');
 
-  function handleUpdate() {
-    onUpdate({ ...subtask, title });
+  useEffect(() => {
+    setTitle(subtask.title);
+  }, [subtask.title]);
 
-    if (!subtask.isNew) {
-      setIsEditing(false);
+  function handleUpdate() {
+    if (title !== subtask.title) {
+      onUpdate({ ...subtask, title });
     }
   }
 
@@ -95,7 +96,7 @@ export default function SubtaskItem({
               {subtask.done ? <BsCheckCircleFill className="text-blue-500 dark:text-blue-400" /> : <BsCircle className="text-slate-400 dark:text-slate-500" />}
             </div>
             <div className="flex-grow min-w-0">
-              {isEditing && canEdit ? (
+              {canEdit ? (
                 <input
                   type="text"
                   value={title}
@@ -109,12 +110,11 @@ export default function SubtaskItem({
                     }
                   }}
                   className="bg-slate-100 dark:bg-slate-700 outline-none px-2 py-1 rounded basis-0 flex-grow w-full"
-                  autoFocus
+                  autoFocus={subtask.isNew}
                 />
               ) : (
                 <span
                   className={`text-slate-700 dark:text-slate-300 ${subtask.done ? 'line-through text-slate-400 dark:text-slate-500' : ''} whitespace-pre-wrap break-words`}
-                  onDoubleClick={() => canEdit && setIsEditing(true)}
                 >
                   {renderTextWithLinks(subtask.title)}
                 </span>
@@ -122,10 +122,10 @@ export default function SubtaskItem({
             </div>
             {canEdit && (
               <div className="flex items-center gap-2 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button type="button" onClick={handleAddSubtask} className="text-slate-500 hover:text-blue-500 p-1 rounded-md">
+                <button type="button" onClick={handleAddSubtask} className="btn-text-primary p-1">
                   <BsPlusCircleFill className="inline-block text-base" />
                 </button>
-                <button onClick={handleDelete} className="text-slate-500 hover:text-red-500 p-1 rounded">
+                <button onClick={handleDelete} className="btn-text-danger p-1">
                   <BsTrashFill className="inline-block text-base" />
                 </button>
               </div>

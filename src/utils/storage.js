@@ -3,7 +3,11 @@ const KEY = 'task-tracker.tasks.v1';
 export function loadTasks() {
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? JSON.parse(raw) : [];
+    let parsed = [];
+    if (raw) {
+      parsed = JSON.parse(raw);
+    }
+    return Array.isArray(parsed) ? parsed : [];
   } catch (e) {
     console.error("Failed to load tasks from local storage", e);
     return [];

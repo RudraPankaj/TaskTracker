@@ -10,7 +10,8 @@ import {
   BsGear,
   BsChevronDoubleLeft,
   BsChevronDoubleRight,
-  BsEye
+  BsEye,
+  BsEyeSlash
 } from 'react-icons/bs'; // Import Bootstrap Icons
 
 export default function Sidebar({ 
@@ -22,12 +23,13 @@ export default function Sidebar({
   isShrunk,
   toggleShrink,
   isDimmed,
-  toggleDimming
+  toggleDimming,
+  openSettingsModal
 }) {
   return (
-    <aside className={`${isShrunk ? 'w-20' : 'w-72'} p-4 bg-white dark:bg-slate-800 shadow-lg transition-all duration-300 ease-in-out flex flex-col h-full`}>
+    <aside className={`${isShrunk ? 'w-16' : 'w-64'} py-4 ${isShrunk ? 'px-2' : 'px-4'} bg-white dark:bg-slate-800 shadow-lg transition-all duration-300 ease-in-out flex flex-col h-full`}>
       <div className="flex-grow overflow-y-auto">
-        <Link to="/" className={`flex items-center mb-6 ${isShrunk ? 'justify-center' : 'justify-start'} cursor-pointer`}>
+        <Link to="/" className={`flex items-center mb-4 md:mb-6 ${isShrunk ? 'justify-center' : 'justify-start'} cursor-pointer`}>
           <div className="h-10 w-10 rounded bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xl flex-shrink-0 font-bold text-slate-600 dark:text-slate-200">
             TT
           </div>
@@ -40,30 +42,30 @@ export default function Sidebar({
         <nav className="mb-6 flex flex-col gap-1">
           <Link
             to="/new-task"
-            className={`w-full text-left py-2 px-3 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center ${isShrunk ? 'justify-center' : 'justify-start'} gap-2`}
+            className={`w-full text-left py-2 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center ${isShrunk ? 'justify-center px-2' : 'justify-start px-3'} gap-1 md:gap-2`}
           >
             <BsPlusCircleDotted className="text-lg" /> <span className={`${isShrunk ? 'hidden' : 'inline'}`}>Add New Task</span>
           </Link>
           <button
-            className={`w-full text-left py-2 px-3 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center ${isShrunk ? 'justify-center' : 'justify-start'} gap-2`}
+            className={`w-full text-left py-2 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center ${isShrunk ? 'justify-center px-2' : 'justify-start px-3'} gap-1 md:gap-2`}
             onClick={clearSearch}
           >
             <BsArrowCounterclockwise className="text-lg" /> <span className={`${isShrunk ? 'hidden' : 'inline'}`}>Clear Search</span>
           </button>
-          <Link
-            to="#" // Placeholder link
-            className={`w-full text-left py-2 px-3 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center ${isShrunk ? 'justify-center' : 'justify-start'} gap-2`}
+          <button
+            onClick={openSettingsModal}
+            className={`w-full text-left py-2 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center ${isShrunk ? 'justify-center px-2' : 'justify-start px-3'} gap-1 md:gap-2`}
           >
             <BsGear className="text-lg" /> <span className={`${isShrunk ? 'hidden' : 'inline'}`}>Settings</span>
-          </Link>
+          </button>
 
-          <div className="border-b dark:border-slate-700 my-4"></div>
+          <div className="border-b dark:border-slate-700 my-2 md:my-4"></div>
 
           <div 
-            className={`py-2 px-3 flex items-center ${isShrunk ? 'justify-center' : 'justify-start'} gap-2 text-slate-600 dark:text-slate-300 ${isShrunk && 'hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer rounded'}`}
+            className={`py-2 flex items-center ${isShrunk ? 'justify-center px-2' : 'justify-start px-3'} gap-1 md:gap-2 text-slate-600 dark:text-slate-300 ${isShrunk && 'hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer rounded'}`}
             onClick={isShrunk ? toggleReminders : undefined}
           >
-            {remindersEnabled ? <BsBell /> : <BsBellSlash />}
+            {remindersEnabled ? <BsBell className="text-lg" /> : <BsBellSlash className="text-lg" />}
             <span className={`${isShrunk ? 'hidden' : 'inline'}`}>Reminders</span>
             {!isShrunk && (
               <button
@@ -77,10 +79,10 @@ export default function Sidebar({
             )}
           </div>
           <div 
-            className={`py-2 px-3 flex items-center ${isShrunk ? 'justify-center' : 'justify-start'} gap-2 text-slate-600 dark:text-slate-300 ${isShrunk && 'hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer rounded'}`}
+            className={`py-2 flex items-center ${isShrunk ? 'justify-center px-2' : 'justify-start px-3'} gap-1 md:gap-2 text-slate-600 dark:text-slate-300 ${isShrunk && 'hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer rounded'}`}
             onClick={isShrunk ? toggleDarkMode : undefined}
           >
-            {darkMode ? <BsMoon /> : <BsSun />}
+            {darkMode ? <BsMoon className="text-lg" /> : <BsSun className="text-lg" />}
             <span className={`${isShrunk ? 'hidden' : 'inline'}`}>Theme</span>
             {!isShrunk && (
               <button
@@ -94,10 +96,10 @@ export default function Sidebar({
             )}
           </div>
           <div 
-            className={`py-2 px-3 flex items-center ${isShrunk ? 'justify-center' : 'justify-start'} gap-2 text-slate-600 dark:text-slate-300 ${isShrunk && 'hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer rounded'}`}
+            className={`py-2 flex items-center ${isShrunk ? 'justify-center px-2' : 'justify-start px-3'} gap-1 md:gap-2 text-slate-600 dark:text-slate-300 ${isShrunk && 'hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer rounded'}`}
             onClick={isShrunk ? toggleDimming : undefined}
           >
-            <BsEye />
+            {isDimmed ? <BsEye className="text-lg" /> : <BsEyeSlash className="text-lg" />}
             <span className={`${isShrunk ? 'hidden' : 'inline'}`}>Eye Care</span>
             {!isShrunk && (
               <button
@@ -113,16 +115,23 @@ export default function Sidebar({
         </nav>
       </div>
 
-      <footer className="mt-auto text-xs text-slate-500 dark:text-slate-400 text-center pt-4 border-t border-slate-200 dark:border-slate-700">
+      <footer className="mt-auto text-xs text-slate-500 dark:text-slate-400 text-center pt-2 md:pt-4 border-t border-slate-200 dark:border-slate-700">
          <button 
           onClick={toggleShrink} 
-          className="w-full text-left py-2 px-3 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center gap-2"
+          className="w-full text-left py-2 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hidden md:flex items-center justify-center gap-2"
         >
-          {isShrunk ? <BsChevronDoubleRight /> : <BsChevronDoubleLeft />}
+          {isShrunk ? <BsChevronDoubleRight className="text-lg" /> : <BsChevronDoubleLeft className="text-lg" />}
           <span className={isShrunk ? 'hidden' : 'inline'}>Collapse</span>
         </button>
         <div className={`mt-2 ${isShrunk ? 'hidden' : 'block'}`}>
-          Made with React · Vite · Tailwind
+          <a
+            href="https://rudrapankaj.github.io/MyPortfolio/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline"
+          >
+            &lt;/&gt; Meet the developer
+          </a>
         </div>
       </footer>
     </aside>
