@@ -81,10 +81,11 @@ export default function App() {
   }, [inputValue]);
 
   useEffect(() => {
-    if (searchQuery && location.pathname !== '/') {
-      navigate('/');
+    // Clear search input when navigating to a new page (unless it's the home page itself)
+    if (location.pathname !== '/' && inputValue !== '') {
+      setInputValue('');
     }
-  }, [searchQuery, navigate, location.pathname]);
+  }, [location.pathname, inputValue]);
 
   function toggleReminders() {
     setRemindersEnabled(prev => !prev);
